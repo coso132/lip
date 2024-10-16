@@ -10,7 +10,7 @@ let to_string = string_of_sentform
     productions to generate the word on the right of the "=". *)
 
 (* #### Exercise 1 *)
-let%test "zero_n_one_n_1" = derive zero_n_one_n [ 1 ] |> to_string = "ϵ"
+let%test "zero_n_one_n_1" = derive zero_n_one_n [ 1 ] |> to_string = ""
 let%test "zero_n_one_n_2" = derive zero_n_one_n [ 0; 1 ] |> to_string = "01"
 let%test "zero_n_one_n_3" =
   derive zero_n_one_n [ 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 1 ]
@@ -42,7 +42,7 @@ let%test "balanced_parentheses_3" =
   -4-> ({[][{}()S]}) -3-> ({[][{}()]}) 
    *)
 (* #### Exercise 5 *)
-let%test "zero_one_same_1" = derive same_amount [ 0 ] |> to_string = "ϵ"
+let%test "zero_one_same_1" = derive same_amount [ 0 ] |> to_string = ""
 let%test "zero_one_same_2" =
   derive same_amount [ 1; 3; 2; 5; 0 ] |> to_string = "1001"
 let%test "zero_one_same_3" =
