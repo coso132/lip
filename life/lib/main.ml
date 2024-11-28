@@ -1,6 +1,6 @@
 module T = ANSITerminal
 open Printf
-
+open Rule
 (* let rec range a b = if b<a then [] else a::(range (a+1) b) *)
 
 let rec zeroes = function
@@ -46,19 +46,21 @@ let count1 l = List.fold_left (fun s x -> s + (if x then 1 else 0)) 0 l
 
 let count w = List.fold_left (fun s x -> s + count1 x) 0 w
 
-let alive w i j =
+let rules : Life.Rule.rule = ([2;3],[3])
+
+let alive w i j (rs, rb) =
   let (cell,nb) = neighbours w i j in
   let alive_nb = count nb in
   if cell then (* cell is alive *)
     (* cell survives? *)
-    alive_nb = 2 || alive_nb = 3
+    List.exists (fun n -> n = alive_nb) rs
   else (* cell is dead *)
     (* cell is born? *)
-    alive_nb = 3
+    List.exists (fun n -> n = alive_nb) rb
 
 let step1 w i =
   let n = List.length w in
-  List.mapi (fun j _ -> alive w i j) (zeroes n)
+  List.mapi (fun j _ -> alive w i j rules) (zeroes n)
 
 let step w =
   let n = List.length w in
