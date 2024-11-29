@@ -17,7 +17,7 @@ exception NoRuleApplies
 let rec trace1 = function
     If(True,e1,_) -> e1
   | If(False,_,e2) -> e2
-  | If(_,_,_) -> failwith "TODO"
+  | If(e0,e1,e2) -> let e0' = trace1 e0 in If(e0',e1,e2)
   | _ -> raise NoRuleApplies
 
 let rec trace e = try
@@ -29,4 +29,4 @@ let rec trace e = try
 let rec eval = function
     True -> true
   | False -> false
-  | If(_,_,_) -> failwith "TODO"
+  | If(c,t,f) -> if eval c then eval t else eval f

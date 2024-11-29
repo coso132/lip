@@ -9,6 +9,8 @@ rule read =
   | white { read lexbuf }  
   | "true" { TRUE }
   | "false" { FALSE }
+  | "||" { OR }
+  | "&&" { AND }
   | "(" { LPAREN }
   | ")" { RPAREN }
   | "if" { IF }

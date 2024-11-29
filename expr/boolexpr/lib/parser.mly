@@ -4,6 +4,8 @@ open Ast
 
 %token TRUE
 %token FALSE
+%token OR
+%token AND
 %token LPAREN
 %token RPAREN
 %token IF
@@ -22,7 +24,9 @@ prog:
 expr:
   | TRUE { True }
   | FALSE { False }
-  | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr; { If(e1, e2, e2) }
+  | e1 = expr; AND; e2 = expr {If(e1,e2,False)}
+  | e1 = expr; OR; e2 = expr {If(e1,True,e2)}
+  | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr; { If(e1, e2, e3) }
   | LPAREN; e=expr; RPAREN {e}
 ;
 
