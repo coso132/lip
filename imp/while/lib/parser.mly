@@ -35,15 +35,15 @@ open Ast
 %token SKIP
 %token EOF
 
-%left SEQ 
-%nonassoc ELSE 
-%left OR 
+%left OR
 %left AND
 %nonassoc NOT
 %left EQ LEQ
 %left PLUS MINUS
 %left TIMES
 
+%left SEQ
+%nonassoc ELSE DO
 
 %start <cmd> prog
 
@@ -74,5 +74,6 @@ cmd:
   | v=VARNAME; ASSIGN; e=expr                 { Assign(v,e) }
   | c1=cmd; SEQ; c2=cmd                       { Seq(c1,c2) }
   | IF; e=expr; THEN; c1=cmd; ELSE; c2=cmd    { If(e,c1,c2) } 
-  | WHILE; e=expr; DO; LPAREN; c=cmd; RPAREN { While(e,c) } 
+  (*| WHILE; e=expr; DO; LPAREN; c=cmd; RPAREN { While(e,c) }*) 
+  | WHILE; e=expr; DO;  c=cmd { While(e,c) } 
   | LPAREN; c=cmd; RPAREN                     { c }

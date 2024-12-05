@@ -50,7 +50,7 @@ let rec eval_expr st e =
 (*SMALL STEP*)
 
 let bot = fun x -> raise (UnboundVar x)
-let bind st x v = fun y -> if (String.compare x y )=0 then v else st x 
+let bind st x v = fun y -> if (String.compare x y )=0 then v else st y 
 
 let rec trace1 = function 
   (*SKIP*)
