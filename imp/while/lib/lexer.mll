@@ -14,7 +14,6 @@ rule read =
   | white { read lexbuf }  
   | "true" { TRUE }
   | "false" { FALSE }
-  | "var" { VAR }
   | ":=" { ASSIGN  }
   | "<=" { LEQ }
   | "=" { EQ }

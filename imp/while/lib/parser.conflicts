@@ -1,0 +1,217 @@
+
+** Conflict (shift/reduce) in state 24.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE NOT expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 24, looking ahead at TIMES, reducing production
+** expr -> NOT expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+NOT expr . 
+
+** In state 24, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+NOT expr 
+    expr . TIMES expr 
+
+** Conflict (shift/reduce) in state 22.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE expr AND expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 22, looking ahead at TIMES, reducing production
+** expr -> expr AND expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr AND expr . 
+
+** In state 22, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr AND expr 
+         expr . TIMES expr 
+
+** Conflict (shift/reduce) in state 20.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE expr EQ expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 20, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr EQ expr 
+        expr . TIMES expr 
+
+** In state 20, looking ahead at TIMES, reducing production
+** expr -> expr EQ expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr EQ expr . 
+
+** Conflict (shift/reduce) in state 18.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE expr LEQ expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 18, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr LEQ expr 
+         expr . TIMES expr 
+
+** In state 18, looking ahead at TIMES, reducing production
+** expr -> expr LEQ expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr LEQ expr . 
+
+** Conflict (shift/reduce) in state 16.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE expr MINUS expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 16, looking ahead at TIMES, reducing production
+** expr -> expr MINUS expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr MINUS expr . 
+
+** In state 16, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr MINUS expr 
+           expr . TIMES expr 
+
+** Conflict (shift/reduce) in state 14.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE expr OR expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 14, looking ahead at TIMES, reducing production
+** expr -> expr OR expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr OR expr . 
+
+** In state 14, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr OR expr 
+        expr . TIMES expr 
+
+** Conflict (shift/reduce) in state 12.
+** Token involved: TIMES
+** This state is reached from prog after reading:
+
+WHILE expr PLUS expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 12, looking ahead at TIMES, reducing production
+** expr -> expr PLUS expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr PLUS expr . 
+
+** In state 12, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr PLUS expr 
+          expr . TIMES expr 
+
+** Conflict (shift/reduce) in state 10.
+** Tokens involved: TIMES PLUS OR MINUS LEQ EQ AND
+** The following explanations concentrate on token TIMES.
+** This state is reached from prog after reading:
+
+WHILE expr TIMES expr
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+prog 
+cmd EOF 
+WHILE expr DO LPAREN cmd RPAREN 
+      (?)
+
+** In state 10, looking ahead at TIMES, shifting is permitted
+** because of the following sub-derivation:
+
+expr TIMES expr 
+           expr . TIMES expr 
+
+** In state 10, looking ahead at TIMES, reducing production
+** expr -> expr TIMES expr
+** is permitted because of the following sub-derivation:
+
+expr TIMES expr // lookahead token appears
+expr TIMES expr . 

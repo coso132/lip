@@ -1,91 +1,90 @@
 open Ast
-
-let (memory:str*exprval) = []  
+open Types
 
 let parse (s : string)  =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
   ast
+
 (*BIG STEP*)
-let rec eval_expr st e= 
+
+let rec eval_expr st e = 
   match e with
-    True -> Bool(true)
+  |  True -> Bool(true)
   | False -> Bool(false)
-  | Var(v) -> st e
+  | Var(v) -> st v
   | Const(n) -> Nat(n)
   | Not(e) ->( 
-      match eval_expr e with
+      match eval_expr st e with
       | Bool(b) -> Bool(not b)
-      | _ -> raise (TypeError "not should be on a bool")
-  )
+      | _ -> raise (TypeError "not should be on a bool"))
   | And (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Bool(b1),Bool(b2) -> Bool(b1 && b2) 
-      | _ -> raise (TypeError "and should be on two bools")
-  )
+      | _ -> raise (TypeError "and should be on two bools"))
   | Or (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Bool(b1),Bool(b2) -> Bool(b1 || b2) 
-      | _ -> raise (TypeError "or should be on two bools")
-  )
+      | _ -> raise (TypeError "or should be on two bools"))
   | Add (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Nat(n1),Nat(n2) -> Nat(n1 + n2) 
-      | _ -> raise (TypeError "add should be on two nats")
-  )
+      | _ -> raise (TypeError "add should be on two nats"))
   | Sub (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Nat(n1),Nat(n2) -> Nat(n1 - n2) 
-      | _ -> raise (TypeError "sub should be on two nats")
-  )
+      | _ -> raise (TypeError "sub should be on two nats"))
   | Mul (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Nat(n1),Nat(n2) -> Nat(n1 * n2) 
-      | _ -> raise (TypeError "mul should be on two nats")
-  )
+      | _ -> raise (TypeError "mul should be on two nats"))
   | Eq (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Nat(n1),Nat(n2) -> Bool(n1 = n2) 
-      | _ -> raise (TypeError "eq should be on two nats")
-  )
+      | _ -> raise (TypeError "eq should be on two nats"))
   | Leq (e1,e2) -> (
-      match (eval_expr e1,eval_expr e2) with
+      match (eval_expr st e1,eval_expr st e2) with
       | Nat(n1),Nat(n2) -> Bool(n1 <= n2) 
-      | _ -> raise (TypeError "leq should be on two nats")
-  )
+      | _ -> raise (TypeError "leq should be on two nats"))
 
 (*SMALL STEP*)
 
-let rec trace1 = function
+let bot = fun x -> raise (UnboundVar x)
+let bind st x v = fun y -> if (String.compare x y )=0 then v else st x 
+
+let rec trace1 = function 
   (*SKIP*)
-  | Cmd(st,Skip)-> St(st)
-  | Cmd(st,Assign(x,e)) ->( 
+  | Cmd(Skip,st)-> St(st)
+  (*ASSIGN*)
+  | Cmd(Assign(x,e),st) ->( 
       let v = eval_expr st e in 
-      let st x = v in  
-      St(st))
+      St(bind st x v))
   (*SEQUENCE*)
-  | Cmd(st,Seq(c1,c2)) ->(
-      let Cmd(st',c1') = trace1 Cmd(st,c1) in
-      match trace1 Cmd(st,c1) with
-      | Cmd(st',c1') -> Cmd(st',Seq(c1',c2))
-      | St(st') -> Cmd(st',c2))
+  | Cmd(Seq(c1,c2),st) ->(
+      match trace1 (Cmd(c1,st)) with
+      | St(st') -> Cmd(c2,st')
+      | Cmd(c1',st') -> Cmd(Seq(c1',c2),st'))
   (*IF*)
-  | Cmd(st,If(e,c1,c2)) ->(
+  | Cmd(If(e,c1,c2),st) ->(
       match eval_expr st e with
-      | Bool(False) -> Cmd(st,c2) 
-      | Bool(True) -> Cmd(st,c1) 
+      | Bool(false) -> Cmd(c2,st) 
+      | Bool(true) -> Cmd(c1,st) 
       | _ -> raise (TypeError "if condition should be a bool"))
   (*WHILE*)
-  | Cmd(st,While(e,c)) -> (
+  | Cmd(While(e,c),st) -> (
       match eval_expr st e with
-      |Bool(False) -> St(st)
-      |Bool(True) -> Cmd(st,Seq(c,While(e,c))))
+      | Bool(false) -> St(st)
+      | Bool(true) -> Cmd(Seq(c,While(e,c)),st)
+      | _ -> raise (TypeError "while condition should be a bool"))
   (*EXCEPTION*)
-  | _ -> raise NoRuleApplies
+  | St(_) -> (raise NoRuleApplies)
 
-let rec trace e = try
-    let e' = trace1 e
-    in e::(trace e')
-  with NoRuleApplies -> [e]
+let rec trace_rec n t = 
+  if n<=0 then [t]
+  else try
+    let t' = trace1 t
+    in t::(trace_rec (n-1) t')
+  with NoRuleApplies -> [t]
 
+let trace n t = trace_rec n (Cmd(t,bot))
 
