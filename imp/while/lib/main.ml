@@ -52,32 +52,36 @@ let rec eval_expr st e =
 let bot = fun x -> raise (UnboundVar x)
 let bind st x v = fun y -> if (String.compare x y )=0 then v else st y 
 
-let rec trace1 = function 
-  (*SKIP*)
-  | Cmd(Skip,st)-> St(st)
-  (*ASSIGN*)
-  | Cmd(Assign(x,e),st) ->( 
-      let v = eval_expr st e in 
-      St(bind st x v))
-  (*SEQUENCE*)
-  | Cmd(Seq(c1,c2),st) ->(
-      match trace1 (Cmd(c1,st)) with
-      | St(st') -> Cmd(c2,st')
-      | Cmd(c1',st') -> Cmd(Seq(c1',c2),st'))
-  (*IF*)
-  | Cmd(If(e,c1,c2),st) ->(
-      match eval_expr st e with
-      | Bool(false) -> Cmd(c2,st) 
-      | Bool(true) -> Cmd(c1,st) 
-      | _ -> raise (TypeError "if condition should be a bool"))
-  (*WHILE*)
-  | Cmd(While(e,c),st) -> (
-      match eval_expr st e with
-      | Bool(false) -> St(st)
-      | Bool(true) -> Cmd(Seq(c,While(e,c)),st)
-      | _ -> raise (TypeError "while condition should be a bool"))
-  (*EXCEPTION*)
+let rec trace1 c = 
+  match c with 
   | St(_) -> (raise NoRuleApplies)
+  | Cmd(cmd,st) -> 
+    let (<--) x e = bind st x (eval_expr st e) in 
+    match Cmd(cmd,st) with 
+    (*SKIP*)
+    | Cmd(Skip,st)-> St(st)
+    (*ASSIGN*)
+    | Cmd(Assign(x,e),_) ->( 
+        St(x <-- e ))
+    (*SEQUENCE*)
+    | Cmd(Seq(c1,c2),st) ->(
+        match trace1 (Cmd(c1,st)) with
+        | St(st') -> Cmd(c2,st')
+        | Cmd(c1',st') -> Cmd(Seq(c1',c2),st'))
+    (*IF*)
+    | Cmd(If(e,c1,c2),st) ->(
+        match eval_expr st e with
+        | Bool(false) -> Cmd(c2,st) 
+        | Bool(true) -> Cmd(c1,st) 
+        | _ -> raise (TypeError "if condition should be a bool"))
+    (*WHILE*)
+    | Cmd(While(e,c),st) -> (
+        match eval_expr st e with
+        | Bool(false) -> St(st)
+        | Bool(true) -> Cmd(Seq(c,While(e,c)),st)
+        | _ -> raise (TypeError "while condition should be a bool"))
+    (*EXCEPTION*)
+    | St(_) -> (raise NoRuleApplies)
 
 let rec trace_rec n t = 
   if n<=0 then [t]
