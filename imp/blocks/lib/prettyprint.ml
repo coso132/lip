@@ -34,9 +34,35 @@ let rec string_of_cmd = function
   | Block(c) -> "{ " ^ string_of_cmd c ^ " }"
 
 let string_of_env1 s x = match topenv s x with
-  | IVar l -> string_of_int l ^ "/" ^ x
-  | BVar l -> string_of_int l ^ "/" ^ x
+  | IVar l | BVar l -> string_of_int l ^ "/" ^ x
     
+let string_of_env3 env x = match env x with
+  | Some(IVar l) | Some(BVar l) -> string_of_int l ^ "/" ^ x
+  | None -> ""
+
+let rec string_of_env2 (dom:ide list) s  =
+  match dom with 
+  | [] -> ""
+  | [x] -> (try string_of_env3 s x with _ -> "")
+  | x::dom' -> (try string_of_env3 s x ^ "," ^ string_of_env2  dom' s
+                with _ -> string_of_env2 dom' s)
+
+  
+let string_of_envlist_of_st vars st=
+  st 
+  |> List.map(getenv)
+  |> List.rev
+  |> List.hd
+  |> List.map(string_of_env2 vars)
+
+let string_of_envlist_of_conf vars conf=
+  conf |> List.map(getstate)
+  |> List.map(getenv)
+  |> List.rev
+  |> List.hd
+  |> List.map(string_of_env2 vars)
+
+
 let rec string_of_env s = function
     [] -> ""
   | [x] -> (try string_of_env1 s x with _ -> "")
@@ -96,9 +122,26 @@ let rec vars_of_cmd = function
   | Decl(d,c) -> union (vars_of_decl d) (vars_of_cmd c)                    
   | Block(c) -> vars_of_cmd c
 
-let string_of_conf vars = function
-    St st -> string_of_state st vars
-  | Cmd(c,st) -> "<" ^ string_of_cmd c ^ ", " ^ string_of_state st vars ^ ">"
+let unwrapfun st = 
+  fun var -> match st var with
+  | Some(y)-> y
+  | None -> failwith "cringiollo"
+
+let concat_strings lst =
+  List.fold_left (fun acc s -> acc ^", " ^s) "" lst
+
+
+let string_of_conf2 vars conf= 
+  match conf with 
+    St (envl,mem,loc) ->(concat_strings (string_of_envlist_of_conf vars [conf])) ^ 
+                        string_of_state (envl|> (List.map unwrapfun),unwrapfun mem,loc) vars
+  | Cmd(c,(envl,mem,loc)) ->(concat_strings (string_of_envlist_of_conf vars [conf])) ^
+                          string_of_cmd c  ^ string_of_cmd c ^ ",\n " ^ string_of_state (envl|> (List.map unwrapfun),unwrapfun mem,loc) vars ^ ">"
+
+let string_of_conf vars conf= 
+  match conf with 
+    St (envl,mem,loc) -> string_of_state (envl|> (List.map unwrapfun),unwrapfun mem,loc) vars
+  | Cmd(c,(envl,mem,loc)) -> "<" ^ string_of_cmd c ^ ",\n " ^ string_of_state (envl|> (List.map unwrapfun),unwrapfun mem,loc) vars ^ ">"
 
 let rec string_of_trace vars = function
     [] -> ""
