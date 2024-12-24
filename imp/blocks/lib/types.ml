@@ -1,5 +1,5 @@
 open Ast
-    
+
 type loc = int
 
 type envval = BVar of loc | IVar of loc
